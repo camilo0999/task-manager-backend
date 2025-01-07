@@ -1,9 +1,14 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: process.env.DB_HOST,
+require('dotenv').config();
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    logging: false, // Desactiva el registro si no necesitas ver los detalles de cada consulta SQL
+    dialectOptions: {
+        ssl: {
+            rejectUnauthorized: false,
+        },
+    },
 });
 
 sequelize
