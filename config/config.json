@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "camilo",
+    "password": 123456,
+    "database": "adminTareas",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "camilo",
+    "password": 123456,
+    "database": "adminTareas",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "camilo",
+    "password": 123456,
+    "database": "adminTareas",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
