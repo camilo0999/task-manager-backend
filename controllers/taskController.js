@@ -43,7 +43,6 @@ exports.createTask = async (req, res) => {
       });
     }
 
-    // Verificar si el archivo fue cargado
     if (!req.file) {
       return res.status(400).json({
         error: 'No se recibió ningún archivo. Por favor, sube una imagen.',
@@ -53,21 +52,33 @@ exports.createTask = async (req, res) => {
     const filename = "/uploads/" + req.file.filename;
 
     try {
-      console.log("Prueba de imagen: ", filename);
-      console.log("Prueba general", req.body);
+      // Verificar si req.user.id existe
+      if (!req.user || !req.user.id) {
+        return res.status(400).json({
+          error: 'Usuario no autenticado. Por favor, inicia sesión.',
+        });
+      }
+
+      // Validar datos de la tarea
+      const { title, description, dueDate, priority, tags, completed } = req.body;
+      if (!title || !description) {
+        return res.status(400).json({
+          error: 'El título y la descripción son obligatorios.',
+        });
+      }
+
       // Crear la tarea en la base de datos
       const task = await Task.create({
         imageUrl: filename,
-        title: req.body.title,
-        description: req.body.description,
-        dueDate: req.body.dueDate,
-        priority: req.body.priority,
-        tags: req.body.tags,
-        completed: req.body.completed,
-        userId: req.user.id, // Asegúrate de que `req.user.id` exista
+        title,
+        description,
+        dueDate,
+        priority,
+        tags,
+        completed,
+        userId: req.user.id,
       });
 
-      // Responder con la tarea creada
       return res.status(201).json({
         message: 'Tarea creada exitosamente',
         task,
@@ -80,6 +91,7 @@ exports.createTask = async (req, res) => {
     }
   });
 };
+
 
 exports.updateTask = async (req, res) => {
   upload(req, res, async (err) => {
