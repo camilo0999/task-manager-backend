@@ -35,93 +35,59 @@ exports.getTaskById = async (req, res) => {
 };
 
 exports.createTask = async (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      console.error('Error al subir la imagen:', err);
-      return res.status(500).json({
-        error: 'Hubo un problema al subir la imagen. Por favor, intenta nuevamente.',
-      });
-    }
+  try {
+    const { title, description, dueDate, priority, tags, imageUrl} = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'No se recibió ningún archivo. Por favor, sube una imagen.',
-      });
-    }
+    console.log(req.body);
+    // Create task
+    const task = await Task.create({
+      title,
+      description,
+      dueDate,
+      priority,
+      tags,
+      completed: false,
+      userId: req.user.id,
+      imageUrl
+    });
 
-    const filename = "/uploads/" + req.file.filename;
-
-    try {
-      // Verificar si req.user.id existe
-      if (!req.user || !req.user.id) {
-        return res.status(400).json({
-          error: 'Usuario no autenticado. Por favor, inicia sesión.',
-        });
-      }
-
-      // Validar datos de la tarea
-      const { title, description, dueDate, priority, tags, completed } = req.body;
-      if (!title || !description) {
-        return res.status(400).json({
-          error: 'El título y la descripción son obligatorios.',
-        });
-      }
-
-      // Crear la tarea en la base de datos
-      const task = await Task.create({
-        imageUrl: filename,
-        title,
-        description,
-        dueDate,
-        priority,
-        tags,
-        completed,
-        userId: req.user.id,
-      });
-
-      return res.status(201).json({
-        message: 'Tarea creada exitosamente',
-        task,
-      });
-    } catch (error) {
-      console.error('Error al crear tarea:', error);
-      return res.status(500).json({
-        error: 'Ocurrió un error al guardar la tarea. Intenta nuevamente más tarde.',
-      });
-    }
-  });
+    // Respond with success message and task data
+    return res.status(201).json({ message: 'Tarea creada exitosamente', task });
+  } catch (error) {
+    // Respond with error message
+    return res.status(500).json({ error: error.message });
+  }
 };
 
 
 exports.updateTask = async (req, res) => {
-  upload(req, res, async (err) => {
-
-    if(err){
-      console.error('Error al subir la imagen:', err);
-      return res.status(500).json({ error: 'Hubo un problema al subir la imagen. Por favor, intenta nuevamente.' });
+  try {
+    // Encuentra la tarea por su ID
+    const task = await Task.findByPk(req.params.id);
+    if (!task) {
+      return res.status(404).json({ error: 'Tarea no encontrada' });
     }
-  
-    try {
-      const task = await Task.findByPk(req.params.id); // Encuentra la tarea por su ID
-      if (!task) {
-        return res.status(404).json({ error: 'Tarea no encontrada' });
-      }
 
-      // Actualiza la tarea
-      await task.update({
-        title: req.body.title,
-        description: req.body.description,
-        dueDate: req.body.dueDate,
-        priority: req.body.priority,
-        tags: req.body.tags
-      });
+    // Actualiza los campos de la tarea
+    task.title = req.body.title || task.title;
+    task.description = req.body.description || task.description;
+    task.dueDate = req.body.dueDate || task.dueDate;
+    task.priority = req.body.priority || task.priority;
+    task.tags = req.body.tags || task.tags;
+    task.completed = req.body.completed || task.completed;
 
-      res.json({ message: 'Tarea actualizada exitosamente', task });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  })
+    console.log(task);
+    // Guarda los cambios en la base de datos
+    await task.save();
+
+    // Responde con un mensaje de éxito y los datos de la tarea actualizada
+    return res.json({ message: 'Tarea actualizada exitosamente', task });
+  } catch (error) {
+    // Responde con un mensaje de error
+    return res.status(500).json({ error: error.message });
+  }
 };
+
 
 exports.deleteTask = async (req, res) => {
   try {

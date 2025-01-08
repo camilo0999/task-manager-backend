@@ -14,7 +14,6 @@ const Task = sequelize.define('Task', {
         type: DataTypes.STRING,
         allowNull: true,
     },
-
     title: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -38,7 +37,7 @@ const Task = sequelize.define('Task', {
     userId: {
         type: DataTypes.INTEGER,
         references: {
-            model: 'users',
+            model: User,
             key: 'id'
         },
         allowNull: true
@@ -47,5 +46,10 @@ const Task = sequelize.define('Task', {
     timestamps: true,
     tableName: 'tasks',
 });
+
+// Definición de la relación
+Task.associate = function(models) {
+    Task.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+};
 
 module.exports = Task;
