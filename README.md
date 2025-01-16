@@ -79,9 +79,6 @@ https://task-manager-api-uzzf.onrender.com/api
 3. Realiza tus cambios y haz commits descriptivos.
 4. Envía un pull request detallando los cambios propuestos.
 
-## Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
 
 ## Contacto
 
